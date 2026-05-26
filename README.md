@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AI Career Operating System Backend
 
 ## Project Description
@@ -90,3 +91,6 @@ http://127.0.0.1:8000/docs
 ## Developed By
 
 Team AI Career OS
+=======
+# ai-chat-backend
+>>>>>>> a6fcb2aeee8a4cf984dfcf98a15d09f732c66c67
