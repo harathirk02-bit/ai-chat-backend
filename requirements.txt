@@ -3,3 +3,12 @@ scikit-learn
 pandas
 numpy
 PyPDF2
+fastapi
+uvicorn
+sqlalchemy
+python-jose
+passlib
+bcrypt
+python-multipart
+email-validator
+google-generativeai
