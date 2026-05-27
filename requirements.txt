@@ -1,0 +1,5 @@
+sqlalchemy
+scikit-learn
+pandas
+numpy
+PyPDF2
