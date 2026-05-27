@@ -8,10 +8,10 @@ router = APIRouter()
 # Generate Roadmap API
 @router.get("/roadmap")
 def roadmap(
+    skill: str,
     credentials = Depends(security)
 ):
-
-    roadmap_data = generate_roadmap()
+    roadmap_data = generate_roadmap(skill)
 
     return {
         "message": "Roadmap Generated",
