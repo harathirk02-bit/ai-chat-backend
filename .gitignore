@@ -1,6 +1,11 @@
+# Python cache
 __pycache__/
 *.pyc
+*.pyo
+
+# Virtual environment
 venv/
 .env
-career_os.db
-uploads/
+
+# Database (SQLite)
+career_os
