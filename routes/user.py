@@ -1,9 +1,4 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException
-)
-
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from database import SessionLocal
@@ -21,6 +16,7 @@ from schemas.user_schema import (
 )
 
 from utils.jwt_handler import security
+
 
 router = APIRouter()
 
@@ -86,6 +82,10 @@ def register(
     )
 
     db.commit()
+
+    db.refresh(
+        new_user
+    )
 
     return {
 
@@ -166,17 +166,19 @@ def login(
     }
 
 
-# Protected Profile API
+# Profile API
 @router.get("/profile")
 def profile(
 
-    credentials = Depends(security)
+    credentials=Depends(
+        security
+    )
 
 ):
 
     return {
 
         "message":
-        "Authorized User Profile"
+        "Authorized User"
 
     }
