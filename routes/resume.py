@@ -6,59 +6,45 @@ from fastapi import (
     HTTPException
 )
 
-from utils.jwt_handler import get_current_user
+from utils.jwt_handler import verify_token
 from utils.helpers import allowed_file
-from services.resume_service import analyze_resume
-
-import os
 
 router = APIRouter()
 
-UPLOAD_DIR = "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-
-# Upload Resume API
 @router.post("/upload-resume")
 def upload_resume(
+
     file: UploadFile = File(...),
-    user=Depends(get_current_user)
+
+    token: str = Depends(verify_token)
+
 ):
 
     if not allowed_file(file.filename):
 
         raise HTTPException(
             status_code=400,
-            detail="Only PDF and DOCX files allowed"
+            detail="Only PDF and DOCX Allowed"
         )
 
-    file_location = f"{UPLOAD_DIR}/{file.filename}"
+    file_location = f"uploads/{file.filename}"
 
-    try:
+    with open(
+        file_location,
+        "wb"
+    ) as f:
 
-        with open(file_location, "wb") as f:
-
-            f.write(file.file.read())
-
-    except Exception:
-
-        raise HTTPException(
-            status_code=500,
-            detail="File upload failed"
+        f.write(
+            file.file.read()
         )
 
     return {
-        "message": "Resume uploaded successfully",
-        "filename": file.filename
+
+        "message":
+        "Resume Uploaded Successfully",
+
+        "filename":
+        file.filename
+
     }
-
-
-# Resume Analysis API
-@router.get("/resume-analysis")
-def resume_analysis(
-    user=Depends(get_current_user)
-):
-
-    result = analyze_resume()
-
-    return result
