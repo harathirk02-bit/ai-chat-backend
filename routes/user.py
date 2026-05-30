@@ -66,25 +66,45 @@ def register(user: UserRegister, db: Session = Depends(get_db)):
 # -------------------------
 # LOGIN API
 # -------------------------
+# Login API
 @router.post("/login")
-def login(user: UserLogin, db: Session = Depends(get_db)):
+def login(
+    user: UserLogin,
+    db: Session = Depends(get_db)
+):
 
-    existing_user = db.query(User).filter(User.email == user.email).first()
+    existing_user = db.query(User).filter(
+        User.email == user.email
+    ).first()
 
     if not existing_user:
-        raise HTTPException(status_code=404, detail="User not found")
 
-    if not verify_password(user.password, existing_user.password):
-        raise HTTPException(status_code=401, detail="Incorrect password")
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    password_check = verify_password(
+        user.password,
+        existing_user.password
+    )
+
+    if not password_check:
+
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect password"
+        )
 
     token = create_access_token(
-        data={"sub": existing_user.email, "user_id": existing_user.id}
+        data={"sub": existing_user.email}
     )
 
     return {
         "message": "Login Successful",
         "access_token": token,
         "token_type": "bearer"
+    
     }
 
 
