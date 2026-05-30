@@ -1,4 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException
+)
+
 from sqlalchemy.orm import Session
 
 from database import SessionLocal
@@ -15,106 +20,163 @@ from schemas.user_schema import (
     UserLogin
 )
 
-from utils.jwt_handler import get_current_user
+from utils.jwt_handler import security
 
 router = APIRouter()
 
 
-# Database connection
+# Database Connection
 def get_db():
+
     db = SessionLocal()
+
     try:
+
         yield db
+
     finally:
+
         db.close()
 
 
-# -------------------------
-# REGISTER API
-# -------------------------
+# Register API
 @router.post("/register")
-def register(user: UserRegister, db: Session = Depends(get_db)):
+def register(
 
-    existing_user = db.query(User).filter(User.email == user.email).first()
+    user: UserRegister,
+
+    db: Session = Depends(get_db)
+
+):
+
+    existing_user = db.query(
+        User
+    ).filter(
+
+        User.email == user.email
+
+    ).first()
 
     if existing_user:
-        raise HTTPException(status_code=400, detail="Email already exists")
 
-    hashed_password = hash_password(user.password)
+        raise HTTPException(
 
-    new_user = User(
-        name=user.name,
-        email=user.email,
-        password=hashed_password
+            status_code=400,
+
+            detail="Email already exists"
+
+        )
+
+    hashed_password = hash_password(
+        user.password
     )
 
-    db.add(new_user)
+    new_user = User(
 
-    try:
-        db.commit()
-        db.refresh(new_user)
+        name=user.name,
 
-    except Exception:
-        db.rollback()
-        raise HTTPException(status_code=500, detail="Database error")
+        email=user.email,
+
+        password=hashed_password
+
+    )
+
+    db.add(
+        new_user
+    )
+
+    db.commit()
 
     return {
-        "message": "Registration Successful"
+
+        "message":
+        "Registration Successful"
+
     }
 
 
-# -------------------------
-# LOGIN API
-# -------------------------
 # Login API
 @router.post("/login")
 def login(
+
     user: UserLogin,
+
     db: Session = Depends(get_db)
+
 ):
 
-    existing_user = db.query(User).filter(
+    existing_user = db.query(
+        User
+    ).filter(
+
         User.email == user.email
+
     ).first()
 
     if not existing_user:
 
         raise HTTPException(
+
             status_code=404,
-            detail="User not found"
+
+            detail="User Not Found"
+
         )
 
     password_check = verify_password(
+
         user.password,
+
         existing_user.password
+
     )
 
     if not password_check:
 
         raise HTTPException(
+
             status_code=401,
-            detail="Incorrect password"
+
+            detail="Incorrect Password"
+
         )
 
     token = create_access_token(
-        data={"sub": existing_user.email}
+
+        data={
+
+            "sub":
+            existing_user.email
+
+        }
+
     )
 
     return {
-        "message": "Login Successful",
-        "access_token": token,
-        "token_type": "bearer"
-    
+
+        "message":
+        "Login Successful",
+
+        "access_token":
+        token,
+
+        "token_type":
+        "bearer"
+
     }
 
 
-# -------------------------
-# PROFILE API (PROTECTED)
-# -------------------------
+# Protected Profile API
 @router.get("/profile")
-def profile(user=Depends(get_current_user)):
+def profile(
+
+    credentials = Depends(security)
+
+):
 
     return {
-        "message": "Authorized User Profile",
-        "user": user
+
+        "message":
+        "Authorized User Profile"
+
     }
