@@ -1,22 +1,43 @@
+import google.generativeai as genai
+import os
+
+# Gemini API Setup
+
+genai.configure(
+
+    api_key=os.getenv(
+        "GEMINI_API_KEY"
+    )
+
+)
+
+# Load Gemini Model
+
+model = genai.GenerativeModel(
+    "gemini-1.5-flash"
+)
+
+
 def chatbot_reply(question: str):
 
-    responses = {
-        "python": "Python is a powerful programming language used in AI and web development.",
+    try:
 
-        "fastapi": "FastAPI is a modern Python framework used for building APIs.",
+        response = model.generate_content(
+            question
+        )
 
-        "ml": "Machine Learning helps systems learn from data."
-    }
+        return {
 
-    question = question.lower()
+            "reply":
+            response.text
 
-    for key in responses:
+        }
 
-        if key in question:
-            return {
-                "reply": responses[key]
-            }
+    except Exception as e:
 
-    return {
-        "reply": "I am your AI Career Assistant."
-    }
+        return {
+
+            "reply":
+            str(e)
+
+        }
