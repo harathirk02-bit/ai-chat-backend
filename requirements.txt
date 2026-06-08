@@ -6,8 +6,8 @@ pandas
 numpy
 PyPDF2
 python-jose
-passlib==1.7.4
-bcrypt==4.1.2
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
 python-multipart
 email-validator
 google-generativeai
