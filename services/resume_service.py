@@ -5,6 +5,8 @@ import os
 from PyPDF2 import PdfReader
 
 
+# GEMINI SETUP
+
 genai.configure(
 
     api_key=os.getenv(
@@ -16,8 +18,13 @@ genai.configure(
 )
 
 model = genai.GenerativeModel(
+
     "gemini-2.0-flash"
+
 )
+
+
+# EXTRACT PDF TEXT
 
 def extract_text(path):
 
@@ -35,17 +42,23 @@ def extract_text(path):
 
                 text += page_text
 
-    except:
+    except Exception as e:
+
+        print(e)
 
         text = ""
 
     return text
 
 
+# ANALYZE RESUME
+
 def analyze_resume(path):
 
     resume_text = extract_text(
+
         path
+
     )
 
     prompt = f"""
@@ -54,15 +67,15 @@ Analyze this resume.
 
 Give:
 
-Resume Score
+1 Resume Score
 
-Recommended Role
+2 Recommended Role
 
-Strengths
+3 Strengths
 
-Improvements
+4 Improvements
 
-3 Interview Questions
+5 Three Interview Questions
 
 Resume:
 
@@ -72,34 +85,76 @@ Return concise answers.
 
 """
 
-    response = model.generate_content(
-        prompt
-    )
+    try:
 
-    return {
+        response = model.generate_content(
 
-        "score":
+            prompt
 
-        "Generated",
+        )
 
-        "role":
+        return {
 
-        "AI Suggested",
+            "score":
 
-        "strengths":
+            "Generated",
 
-        "Based on Resume",
+            "role":
 
-        "improvement":
+            "AI Suggested",
 
-        "Based on Resume",
+            "strengths":
 
-        "questions":
+            "Based on Resume",
 
-        [
+            "improvement":
 
-            response.text
+            "Based on Resume",
 
-        ]
+            "questions":
 
-    }
+            [
+
+                response.text
+
+            ]
+
+        }
+
+    except Exception as e:
+
+        print(
+
+            "Gemini Error:",
+
+            e
+
+        )
+
+        return {
+
+            "score":
+
+            "N/A",
+
+            "role":
+
+            "Unable to Generate",
+
+            "strengths":
+
+            "Gemini quota exceeded",
+
+            "improvement":
+
+            "Try again later",
+
+            "questions":
+
+            [
+
+                "AI analysis unavailable currently"
+
+            ]
+
+        }
