@@ -1,50 +1,52 @@
-from fastapi import (
-    APIRouter,
-    UploadFile,
-    File,
-    Depends,
-    HTTPException
-)
+from fastapi import APIRouter, UploadFile, File, Depends
+from utils.jwt_handler import security
 
-from utils.jwt_handler import verify_token
-from utils.helpers import allowed_file
+from services.resume_service import analyze_resume
+
+import os
 
 router = APIRouter()
 
 
 @router.post("/upload-resume")
-def upload_resume(
+
+async def upload_resume(
 
     file: UploadFile = File(...),
 
-    token: str = Depends(verify_token)
+    credentials=Depends(security)
 
 ):
 
-    if not allowed_file(file.filename):
+    upload_folder = "uploads"
 
-        raise HTTPException(
-            status_code=400,
-            detail="Only PDF and DOCX Allowed"
-        )
+    os.makedirs(
+        upload_folder,
+        exist_ok=True
+    )
 
-    file_location = f"uploads/{file.filename}"
+    filepath = os.path.join(
 
-    with open(
-        file_location,
-        "wb"
-    ) as f:
+        upload_folder,
 
-        f.write(
-            file.file.read()
-        )
-
-    return {
-
-        "message":
-        "Resume Uploaded Successfully",
-
-        "filename":
         file.filename
 
-    }
+    )
+
+    with open(
+
+        filepath,
+
+        "wb"
+
+    ) as f:
+
+        content = await file.read()
+
+        f.write(content)
+
+    result = analyze_resume(
+        filepath
+    )
+
+    return result
