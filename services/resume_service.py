@@ -1,155 +1,80 @@
 import google.generativeai as genai
 import os
 from PyPDF2 import PdfReader
+import json
 
+# Configure Gemini
 genai.configure(
     api_key=os.getenv("GEMINI_API_KEY")
 )
 
-model = genai.GenerativeModel(
-    "gemini-2.0-flash"
-)
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 
+# Extract text from PDF
 def extract_text(path):
 
     text = ""
 
     try:
-
         reader = PdfReader(path)
 
         for page in reader.pages:
-
             page_text = page.extract_text()
-
             if page_text:
                 text += page_text
 
     except Exception as e:
-
-        print(e)
+        print("PDF Error:", e)
 
     return text
 
 
+# Main function
 def analyze_resume(path):
 
     resume_text = extract_text(path)
 
     prompt = f"""
+Return ONLY valid JSON. Do NOT add explanation or markdown.
 
-Analyze this resume and return ONLY in this format:
-
-Score: <score>
-
-Role: <recommended role>
-
-Strengths: <strengths>
-
-Improvements: <improvements>
-
-Questions:
-
-1. question
-
-2. question
-
-3. question
+Format:
+{{
+  "score": "",
+  "role": "",
+  "strengths": "",
+  "improvements": "",
+  "questions": ["", "", ""]
+}}
 
 Resume:
-
 {resume_text}
-
 """
 
     try:
 
-        response = model.generate_content(
-            prompt
-        )
+        response = model.generate_content(prompt)
 
         text = response.text
 
-        score = "Not Available"
-        role = "Not Available"
-        strengths = "Not Available"
-        improvement = "Not Available"
+        # Clean Gemini response (important)
+        text = text.replace("```json", "").replace("```", "").strip()
 
-        questions = []
+        # Convert to Python dict
+        data = json.loads(text)
 
-        lines = text.split("\n")
-
-        for line in lines:
-
-            if line.startswith("Score:"):
-                score = line.replace(
-                    "Score:",
-                    ""
-                ).strip()
-
-            elif line.startswith("Role:"):
-                role = line.replace(
-                    "Role:",
-                    ""
-                ).strip()
-
-            elif line.startswith("Strengths:"):
-                strengths = line.replace(
-                    "Strengths:",
-                    ""
-                ).strip()
-
-            elif line.startswith("Improvements:"):
-                improvement = line.replace(
-                    "Improvements:",
-                    ""
-                ).strip()
-
-            elif (
-                line.strip().startswith("1.")
-                or
-                line.strip().startswith("2.")
-                or
-                line.strip().startswith("3.")
-            ):
-
-                questions.append(
-                    line.strip()
-                )
-
-        return {
-
-            "score": score,
-
-            "role": role,
-
-            "strengths": strengths,
-
-            "improvement": improvement,
-
-            "questions": questions
-
-        }
+        return data
 
     except Exception as e:
 
         print("Gemini Error:", e)
 
         return {
-
             "score": "N/A",
-
             "role": "Unable to Generate",
-
             "strengths": "Gemini failed",
-
-            "improvement": "Try again later",
-
+            "improvements": "Try again later",
             "questions": [
-
                 "AI analysis unavailable"
-
             ]
-
         }
