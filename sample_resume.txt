@@ -1,0 +1,17 @@
+Name: sreeja
+
+Skills:
+Python
+React
+Machine Learning
+FastAPI
+SQL
+HTML
+CSS
+
+Projects:
+AI Career Operating System
+AI health system
+
+Experience:
+Built AI and ML based applications using Python and React.

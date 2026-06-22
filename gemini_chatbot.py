@@ -1,21 +1,52 @@
 import google.generativeai as genai
+import os
 
-# Add Gemini API Key
-genai.configure(api_key="YOUR_GEMINI_API_KEY")
+
+# Configure Gemini API Key
+
+genai.configure(
+    api_key=os.getenv("GEMINI_API_KEY")
+)
+
 
 # Load Gemini Model
-model = genai.GenerativeModel("gemini-pro")
+
+model = genai.GenerativeModel(
+    "gemini-1.5-flash"
+)
+
+
+# Chatbot Function
 
 def ask_chatbot(user_question):
 
-    response = model.generate_content(user_question)
+    try:
 
-    return response.text
+        response = model.generate_content(
+            user_question
+        )
+
+        return response.text
+
+    except Exception as e:
+
+        return f"Error: {str(e)}"
 
 
-# Example
-question = "Suggest roadmap for becoming ML Engineer"
 
-reply = ask_chatbot(question)
+# Example Test
 
-print(reply)
+if __name__ == "__main__":
+
+    question = input(
+        "Ask Question: "
+    )
+
+    reply = ask_chatbot(
+        question
+    )
+
+    print(
+        "\nAI Reply:",
+        reply
+    )

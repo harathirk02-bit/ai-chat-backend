@@ -1,20 +1,25 @@
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
+
 from utils.jwt_handler import security
 from services.chatbot_service import chatbot_reply
 
 router = APIRouter()
 
+# Request body
+class ChatRequest(BaseModel):
+    question: str
 
-# AI Chatbot API
-@router.get("/chatbot")
+# Chatbot API
+@router.post("/chatbot")
 def chatbot(
-    question: str,
-    credentials = Depends(security)
+    data: ChatRequest,
+    credentials=Depends(security)
 ):
 
-    response = chatbot_reply(question)
+    reply = chatbot_reply(data.question)
 
     return {
-        "question": question,
-        "response": response
+        "question": data.question,
+        "reply": reply
     }
