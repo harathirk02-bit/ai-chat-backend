@@ -5,14 +5,14 @@ import os
 # Configure Gemini API Key
 
 genai.configure(
-    api_key=os.getenv("GEMINI_API_KEY")
+    api_key=os.getenv("AQ.Ab8RN6KXe7_BlqinMpmkA5xIUci_ZtrRNqtC9Zvx9GIfNU2n-Q")
 )
 
 
 # Load Gemini Model
 
 model = genai.GenerativeModel(
-    "gemini-1.5-flash"
+    "gemini-2.5-flash"
 )
 
 
