@@ -2,7 +2,7 @@ import google.generativeai as genai
 
 genai.configure(api_key="AQ.Ab8RN6KXe7_BlqinMpmkA5xIUci_ZtrRNqtC9Zvx9GIfNU2n-Q")
 
-model = genai.GenerativeModel("gemini-pro")
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 def generate_roadmap(skill):
 
